@@ -1,3 +1,7 @@
+import { IQuery } from "./models";
+
+
+
 var apiKey = '40e985bc6b11b2876bcbec95ef6b72e2';
 let requestToken : string;
 let username : string;
@@ -10,13 +14,13 @@ let searchButton = document.getElementById('search-button') as HTMLButtonElement
 let searchContainer = document.getElementById('search-container');
 
 
-if(loginButton){
-    loginButton.addEventListener('click', async () => {
-        await criarRequestToken();
-        await logar();
-        await criarSessao();
-      })
-}
+
+loginButton.addEventListener('click', async () => {
+  await criarRequestToken();
+  await logar();
+  await criarSessao();
+})
+
 
 searchButton.addEventListener('click', async () => {
   let lista = document.getElementById("lista");
@@ -24,15 +28,20 @@ searchButton.addEventListener('click', async () => {
     lista.outerHTML = "";
   }
   let query = (<HTMLInputElement> document.getElementById('search')).value;
-  let listaDeFilmes = await procurarFilme(query);
+  let listaDeFilmes = <IQuery> await procurarFilme(query);
   let ul = document.createElement('ul');
   ul.id = "lista"
-  for (const item of listaDeFilmes.results) {
-    let li = document.createElement('li');
-    li.appendChild(document.createTextNode(item.original_title))
-    ul.appendChild(li)
+
+  if(listaDeFilmes){
+    for (const item of listaDeFilmes.results) {
+      let li = document.createElement('li');
+      li.appendChild(document.createTextNode(item.original_title))
+      ul.appendChild(li)
+    }
+    console.log(listaDeFilmes);
   }
-  console.log(listaDeFilmes);
+
+
   if(searchContainer){
     searchContainer.appendChild(ul);
   }
@@ -99,7 +108,7 @@ class HttpClient {
   }
 }
 
-async function procurarFilme(query) {
+async function procurarFilme(query: string) {
   query = encodeURI(query)
   console.log(query)
   let result = await HttpClient.get({
@@ -148,7 +157,7 @@ async function criarSessao() {
   sessionId = result.session_id;
 }
 
-async function criarLista(nomeDaLista: string, descricao: string) {
+/* async function criarLista(nomeDaLista: string, descricao: string) {
   let result = await HttpClient.get({
     url: `https://api.themoviedb.org/3/list?api_key=${apiKey}&session_id=${sessionId}`,
     method: "POST",
@@ -178,68 +187,7 @@ async function pegarLista() {
     method: "GET"
   })
   console.log(result);
-}
+} */
 
-interface IResultToken{
-  sucess: boolean;
-  expires_at: string;
-  request_token: string;
-}
 
-interface IRequestBodyWithLogin{
-  success: boolean;
-  expires_at: string;
-  request_token: string;
-}
 
-interface IResult {
-  adult: boolean;
-  backdrop_path: string;
-  belongs_to_collection:null;
-  budget: number;
-  genres:IGenres;
-  homepage: string;
-  id: number;
-  imdb_id: string;
-  original_language: string;
-  original_title:string;
-  overview: string;
-  popularity: number;
-  poster_path:string;
-  production_companies: IProduction_companies;
-  production_countries:IProduction_countries;
-  release_date:string;
-  revenue:number;
-  runtime: number;
-  spoken_languages: ISpoken_languages;
-  status:string;
-  tagline: string;
-  title: string;
-  video:false,
-  vote_average:number;
-  vote_count:number;
-}
-
-interface IGenres{
-  id:number;
-  name: string;
-}
-
-interface IProduction_companies{
-  id: number;
-  logo_path:string;
-  name: string;
-  origin_country:string;
-
-}
-
-interface IProduction_countries{
-  iso_3166_1: string;
-  name: string;
-}
-
-interface ISpoken_languages{
-  english_name: string;
-  iso_639_1: string;
-  name: string;
-}
