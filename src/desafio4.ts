@@ -57,6 +57,10 @@ function validateLoginButton() {
   }
 }
 
+function loginSucess() {
+  alert("Usuário logou com sucesso!!!");  
+}
+
 class HttpClient {
   
   static async get({url, method, body = null}) {
@@ -126,6 +130,7 @@ async function logar() {
       request_token: `${requestToken}`
     }
   })
+  loginSucess();
 }
 
 async function criarSessao() {
